@@ -1,17 +1,12 @@
 import os
 import re
 
-os.environ["HF_HOME"] = r"F:\huggingface"
-os.environ["HF_HUB_CACHE"] = r"F:\huggingface\hub"
-os.environ["HF_XET_CACHE"] = r"F:\huggingface\xet"
-os.environ["HF_HUB_OFFLINE"] = "1"
-os.environ["TRANSFORMERS_OFFLINE"] = "1"
-
 import torch
 from transformers import GPT2LMHeadModel, GPT2Tokenizer, GenerationConfig
 
 
 MODEL_NAME = "ai-forever/rugpt3large_based_on_gpt2"
+MODEL_REVISION = "29c569320be2e08f29757898ec3866413725acd7"
 TARGET_WORDS = ["психологическое", "опосредованным"]
 
 
@@ -69,13 +64,13 @@ def main():
     check_prompt(PROMPT)
 
     device = "cpu"
-    torch.set_num_threads(6)
+    torch.set_num_threads(min(6, os.cpu_count() or 1))
     print(f"Загрузка модели. Устройство: {device}", flush=True)
-    tok = GPT2Tokenizer.from_pretrained(MODEL_NAME, local_files_only=True)
+    tok = GPT2Tokenizer.from_pretrained(MODEL_NAME, revision=MODEL_REVISION)
     model = GPT2LMHeadModel.from_pretrained(
         MODEL_NAME,
+        revision=MODEL_REVISION,
         dtype=torch.float32,
-        local_files_only=True,
     ).to(device)
     model.eval()
 
